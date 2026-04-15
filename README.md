@@ -7,15 +7,28 @@
 <a name="english"></a>
 ## English
 
-Claude Code Hooks Collection - macOS notification and safety hooks for Claude Code CLI.
+Claude Code Hooks that I actually use daily — macOS notifications and safety guards.
 
-### Features
+Two hooks, one purpose: keep Claude Code safe and responsive.
 
-- **block-rm.sh** - Prevents dangerous `rm` commands, forces use of Trash instead
-- **macOS Notifications** - Native notifications for permission requests and task completion
-- **Easy Setup** - One-command installation via `setup.sh`
+- **block-rm.sh** — Blocks dangerous `rm` commands, forces Trash instead
+- **macOS Notifications** — Native system notifications for permission requests and task completion
 
-### Quick Start
+---
+
+### Hooks
+
+| Hook | Type | Description |
+|------|------|-------------|
+| [**block-rm.sh**](hooks/block-rm.sh) | PreToolUse | Prevents irreversible `rm` commands. Claude will use `mv ~/.Trash/` instead |
+| **Permission Notification** | PermissionRequest | macOS notification when Claude needs your approval |
+| **Completion Notification** | Stop | macOS notification when Claude finishes a task |
+
+---
+
+### Installation
+
+**One-command setup:**
 
 ```bash
 git clone https://github.com/SlowGrowth1314/CCSkills.git
@@ -23,128 +36,97 @@ cd CCSkills
 ./setup.sh
 ```
 
-### Prerequisites
-
-- macOS (for notifications via osascript)
-- [jq](https://stedolan.github.io/jq/) - JSON processor (auto-installed by setup.sh if missing)
-- Claude Code CLI
-
-### Installation
-
-#### Automatic Installation
-
-```bash
-./setup.sh
-```
-
 The script will:
-1. Check for `jq` dependency
-2. Copy hooks to `~/.claude/hooks/`
-3. Display instructions for enabling hooks in settings
+- Auto-install `jq` dependency (via Homebrew)
+- Copy hooks to `~/.claude/hooks/`
+- Merge hooks config into `~/.claude/settings.json` (preserves existing settings)
+- Make hooks executable
 
-#### Manual Installation
-
-1. Copy hooks to your Claude config:
-   ```bash
-   mkdir -p ~/.claude/hooks
-   cp hooks/block-rm.sh ~/.claude/hooks/
-   chmod +x ~/.claude/hooks/block-rm.sh
-   ```
-
-2. Add hook configuration to `~/.claude/settings.json`:
-   ```json
-   {
-     "hooks": {
-       "PreToolUse": [
-         {
-           "hooks": [
-             {
-               "command": "bash ~/.claude/hooks/block-rm.sh",
-               "type": "command"
-             }
-           ]
-         }
-       ]
-     }
-   }
-   ```
-
-### Hooks
-
-#### block-rm.sh
-
-Prevents Claude Code from executing `rm` commands. Forces use of `mv <file> ~/.Trash/` instead.
-
-**Why?** The `rm` command is irreversible. This hook prevents accidental data loss by blocking all `rm` commands and prompting safer alternatives.
-
-**Hook type:** PreToolUse
-
-**Blocked patterns:**
-- `rm file.txt`
-- `rm -rf directory/`
-- `rm -rf /*` (especially this one)
-- Any command containing `rm` with arguments
-
-#### macOS Notifications
-
-Native macOS notifications for Claude Code events:
-
-| Event | Sound | Purpose |
-|-------|-------|---------|
-| PermissionRequest | Hero | Claude requests permission |
-| Stop | Pop | Task completed |
-
-**Hook types:** PermissionRequest, Stop
-
-### Configuration
-
-See `hooks-example.json` for a complete configuration example.
-
-To enable all hooks, merge the contents of `hooks-example.json` into your `~/.claude/settings.json`:
+**Restart Claude Code to apply:**
 
 ```bash
-# View current settings
-cat ~/.claude/settings.json
-
-# View example hooks
-cat hooks-example.json
+claude
 ```
 
-### Files
+**Manual installation:**
+
+| Tool | Hooks Path |
+|------|------------|
+| Claude Code | `~/.claude/hooks/` |
+
+See [hooks-example.json](hooks-example.json) for configuration format.
+
+---
+
+### Why These Hooks?
+
+**block-rm.sh**
+
+`rm` is irreversible. One accidental `rm -rf /*` and your data is gone forever.
+
+This hook:
+- Blocks all `rm` commands
+- Prompts safer alternatives: `mv <file> ~/.Trash/`
+- Works on patterns: `rm file`, `rm -rf dir`, `rm -rf /*`
+
+**macOS Notifications**
+
+Claude Code runs silently in terminal. You might miss:
+- Permission requests waiting for your input
+- Tasks completed while you're away
+
+Native macOS notifications:
+- **PermissionRequest** → Sound: Hero, grabs your attention
+- **Stop** → Sound: Pop, subtle completion signal
+
+---
+
+### Project Structure
 
 ```
 CCSkills/
 ├── hooks/
-│   └── block-rm.sh        # Safety hook - blocks rm commands
-├── hooks-example.json     # Sample hooks configuration
-├── setup.sh               # One-command installation
-├── LICENSE                # MIT License
-├── README.md              # This file
-└── CONTRIBUTING.md        # Contribution guidelines
+│   └── block-rm.sh        # rm blocker
+├── hooks-example.json     # Full config example
+├── setup.sh               # One-command installer
+├── LICENSE
+├── README.md
+└── CONTRIBUTING.md
 ```
+
+---
 
 ### License
 
-MIT License - see [LICENSE](LICENSE)
-
-### Contributing
-
-See [CONTRIBUTING.md](CONTRIBUTING.md)
+[MIT](LICENSE)
 
 ---
 
 <a name="中文"></a>
 ## 中文
 
-Claude Code Hooks 集合 - 为 Claude Code CLI 提供 macOS 通知和安全防护钩子。
+我日常在用的 Claude Code Hooks — macOS 通知和安全防护。
 
-### 功能特性
+两个钩子，一个目的：让 Claude Code 更安全、更及时响应。
 
-- **block-rm.sh** - 阻止危险的 `rm` 命令，强制使用回收站
-- **macOS 通知** - 权限请求和任务完成时的原生通知
-- **一键安装** - 通过 `setup.sh` 快速配置
+- **block-rm.sh** — 拦截危险的 `rm` 命令，强制使用回收站
+- **macOS 通知** — 权限请求和任务完成时的系统通知
 
-### 快速开始
+---
+
+### 钩子列表
+
+| 钩子 | 类型 | 说明 |
+|------|------|------|
+| [**block-rm.sh**](hooks/block-rm.sh) | PreToolUse | 拦截不可逆的 `rm` 命令，Claude 会改用 `mv ~/.Trash/` |
+| **权限通知** | PermissionRequest | Claude 需要你批准时弹出 macOS 通知 |
+| **完成通知** | Stop | Claude 完成任务时弹出 macOS 通知 |
+
+---
+
+### 安装方式
+
+**一键安装：**
 
 ```bash
 git clone https://github.com/SlowGrowth1314/CCSkills.git
@@ -152,110 +134,66 @@ cd CCSkills
 ./setup.sh
 ```
 
-### 系统要求
+脚本会自动：
+- 安装 `jq` 依赖（通过 Homebrew）
+- 复制钩子到 `~/.claude/hooks/`
+- 合并配置到 `~/.claude/settings.json`（保留已有设置）
+- 设置钩子可执行权限
 
-- macOS（通知功能依赖 osascript）
-- [jq](https://stedolan.github.io/jq/) - JSON 处理器（如缺失，setup.sh 会自动安装）
-- Claude Code CLI
-
-### 安装方式
-
-#### 自动安装
+**重启 Claude Code 生效：**
 
 ```bash
-./setup.sh
+claude
 ```
 
-脚本会执行以下操作：
-1. 检查 `jq` 依赖
-2. 复制钩子到 `~/.claude/hooks/`
-3. 显示配置启用指引
+**手动安装：**
 
-#### 手动安装
+| 工具 | 钩子路径 |
+|------|----------|
+| Claude Code | `~/.claude/hooks/` |
 
-1. 复制钩子到 Claude 配置目录：
-   ```bash
-   mkdir -p ~/.claude/hooks
-   cp hooks/block-rm.sh ~/.claude/hooks/
-   chmod +x ~/.claude/hooks/block-rm.sh
-   ```
+配置格式见 [hooks-example.json](hooks-example.json)。
 
-2. 在 `~/.claude/settings.json` 中添加钩子配置：
-   ```json
-   {
-     "hooks": {
-       "PreToolUse": [
-         {
-           "hooks": [
-             {
-               "command": "bash ~/.claude/hooks/block-rm.sh",
-               "type": "command"
-             }
-           ]
-         }
-       ]
-     }
-   }
-   ```
+---
 
-### 钩子说明
+### 为什么需要这些钩子？
 
-#### block-rm.sh - rm 命令防护
+**block-rm.sh**
 
-阻止 Claude Code 执行 `rm` 命令，强制使用 `mv <file> ~/.Trash/` 替代。
+`rm` 不可逆。一次误操作 `rm -rf /*`，数据永远消失。
 
-**为什么需要？** `rm` 命令不可逆，此钩子防止意外数据丢失，提示使用更安全的替代方案。
+这个钩子：
+- 拦截所有 `rm` 命令
+- 提示更安全的替代：`mv <file> ~/.Trash/`
+- 拦截模式：`rm file`、`rm -rf dir`、`rm -rf /*`
 
-**钩子类型：** PreToolUse
+**macOS 通知**
 
-**拦截模式：**
-- `rm file.txt`
-- `rm -rf directory/`
-- `rm -rf /*`（尤其重要）
-- 任何包含 `rm` 的命令
+Claude Code 在终端静默运行。你可能错过：
+- 权限请求在等你输入
+- 任务完成时你不在
 
-#### macOS 通知
+原生 macOS 通知：
+- **PermissionRequest** → 声音：Hero，引起注意
+- **Stop** → 声音：Pop，轻微完成提示
 
-Claude Code 事件的 macOS 原生通知：
-
-| 事件 | 声音 | 用途 |
-|------|------|------|
-| PermissionRequest | Hero | Claude 请求权限 |
-| Stop | Pop | 任务完成 |
-
-**钩子类型：** PermissionRequest, Stop
-
-### 配置示例
-
-完整配置见 `hooks-example.json`。
-
-启用所有钩子：将 `hooks-example.json` 内容合并到 `~/.claude/settings.json`：
-
-```bash
-# 查看当前配置
-cat ~/.claude/settings.json
-
-# 查看钩子示例
-cat hooks-example.json
-```
+---
 
 ### 项目结构
 
 ```
 CCSkills/
 ├── hooks/
-│   └── block-rm.sh        # 安全钩子 - 阻止 rm 命令
-├── hooks-example.json     # 钩子配置示例
+│   └── block-rm.sh        # rm 拦截器
+├── hooks-example.json     # 完整配置示例
 ├── setup.sh               # 一键安装脚本
-├── LICENSE                # MIT 许可证
-├── README.md              # 本文件
-└── CONTRIBUTING.md        # 贡献指南
+├── LICENSE
+├── README.md
+└── CONTRIBUTING.md
 ```
+
+---
 
 ### 许可证
 
-MIT License - 详见 [LICENSE](LICENSE)
-
-### 贡献指南
-
-详见 [CONTRIBUTING.md](CONTRIBUTING.md)
+[MIT](LICENSE)
