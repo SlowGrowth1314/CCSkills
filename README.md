@@ -69,6 +69,10 @@ This hook:
 - Prompts safer alternatives: `mv <file> ~/.Trash/`
 - Works on patterns: `rm file`, `rm -rf dir`, `rm -rf /*`
 
+<p align="center">
+  <img src="screenshots/rm-block.png" alt="rm command blocked by hook" width="400">
+</p>
+
 **macOS Notifications**
 
 Claude Code runs silently in terminal. You might miss:
@@ -79,6 +83,10 @@ Native macOS notifications:
 - **PermissionRequest** → Sound: Hero, grabs your attention
 - **Stop** → Sound: Pop, subtle completion signal
 
+<p align="center">
+  <img src="screenshots/notifications.jpg" alt="macOS notification example" width="300">
+</p>
+
 ---
 
 ### Project Structure
@@ -87,6 +95,9 @@ Native macOS notifications:
 CCSkills/
 ├── hooks/
 │   └── block-rm.sh        # rm blocker
+├── screenshots/           # Demo screenshots
+│   ├── rm-block.png
+│   └── notifications.jpg
 ├── hooks-example.json     # Full config example
 ├── setup.sh               # One-command installer
 ├── LICENSE
@@ -167,6 +178,10 @@ claude
 - 提示更安全的替代：`mv <file> ~/.Trash/`
 - 拦截模式：`rm file`、`rm -rf dir`、`rm -rf /*`
 
+<p align="center">
+  <img src="screenshots/rm-block.png" alt="rm 命令拦截效果" width="400">
+</p>
+
 **macOS 通知**
 
 Claude Code 在终端静默运行。你可能错过：
@@ -176,6 +191,10 @@ Claude Code 在终端静默运行。你可能错过：
 原生 macOS 通知：
 - **PermissionRequest** → 声音：Hero，引起注意
 - **Stop** → 声音：Pop，轻微完成提示
+
+<p align="center">
+  <img src="screenshots/notifications.jpg" alt="macOS 通知示例" width="300">
+</p>
 
 ---
 
