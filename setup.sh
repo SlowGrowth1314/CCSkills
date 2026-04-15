@@ -1,10 +1,17 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# CCSkills - First-time setup
-# Usage: ./setup.sh
+# CCSkills - Fully automated setup
+# Usage: ./setup.sh [--dry-run]
 
-echo "=== CCSkills Setup ==="
+DRY_RUN=false
+if [[ "${1:-}" == "--dry-run" ]]; then
+    DRY_RUN=true
+    echo "=== DRY RUN MODE - No changes will be made ==="
+    echo ""
+fi
+
+echo "=== CCSkills Automated Setup ==="
 echo ""
 
 # Check prerequisites
@@ -22,28 +29,85 @@ command -v jq >/dev/null 2>&1 || {
     fi
 }
 
-# Create Claude hooks directory
-CLAUDE_HOOKS_DIR="$HOME/.claude/hooks"
-mkdir -p "$CLAUDE_HOOKS_DIR"
+# Paths
+CLAUDE_DIR="$HOME/.claude"
+CLAUDE_HOOKS_DIR="$CLAUDE_DIR/hooks"
+SETTINGS_FILE="$CLAUDE_DIR/settings.json"
+HOOKS_EXAMPLE="$(pwd)/hooks-example.json"
+
+# Create directories
+echo "Creating directories..."
+if [[ "$DRY_RUN" == "false" ]]; then
+    mkdir -p "$CLAUDE_HOOKS_DIR"
+fi
 
 # Install hooks
 echo "Installing hooks to ~/.claude/hooks/..."
-cp hooks/block-rm.sh "$CLAUDE_HOOKS_DIR/"
-chmod +x "$CLAUDE_HOOKS_DIR/block-rm.sh"
+if [[ "$DRY_RUN" == "false" ]]; then
+    cp hooks/block-rm.sh "$CLAUDE_HOOKS_DIR/"
+    chmod +x "$CLAUDE_HOOKS_DIR/block-rm.sh"
+fi
+
+# Configure settings.json
+echo ""
+echo "Configuring ~/.claude/settings.json..."
+
+if [[ "$DRY_RUN" == "false" ]]; then
+    if [[ -f "$SETTINGS_FILE" ]]; then
+        # Merge hooks into existing settings
+        echo "Merging hooks with existing settings..."
+
+        # Read existing settings
+        EXISTING=$(cat "$SETTINGS_FILE")
+
+        # Read hooks config
+        HOOKS_CONFIG=$(cat "$HOOKS_EXAMPLE")
+
+        # Merge using jq - deep merge to preserve existing settings
+        MERGED=$(echo "$EXISTING" "$HOOKS_CONFIG" | jq -s 'def deep_merge(a; b):
+            b | to_entries |
+            reduce .[] as $item (a;
+                if ($item.key | IN("hooks")) then
+                    .[$item.key] = deep_merge(.[$item.key] // {}; $item.value)
+                else
+                    .[$item.key] = $item.value
+                end
+            );
+        deep_merge(.[0]; .[1])')
+
+        # Write merged settings
+        echo "$MERGED" > "$SETTINGS_FILE"
+
+        echo "Settings merged successfully!"
+    else
+        # Create new settings file
+        echo "Creating new settings.json..."
+        mkdir -p "$CLAUDE_DIR"
+        cp "$HOOKS_EXAMPLE" "$SETTINGS_FILE"
+        echo "Settings created successfully!"
+    fi
+else
+    echo "[DRY RUN] Would configure settings.json"
+fi
 
 echo ""
-echo "=== Setup complete! ==="
+echo "=== Setup Complete! ==="
 echo ""
-echo "Hooks installed:"
-echo "  - block-rm.sh (PreToolUse hook)"
+echo "Installed hooks:"
+echo "  ✓ block-rm.sh → ~/.claude/hooks/block-rm.sh"
 echo ""
-echo "Next steps:"
-echo "  1. Add hooks to your ~/.claude/settings.json"
-echo "  2. See hooks-example.json for configuration"
-echo "  3. Restart Claude Code to apply changes"
+echo "Configuration:"
+echo "  ✓ Hooks added to ~/.claude/settings.json"
 echo ""
-echo "Example configuration for ~/.claude/settings.json:"
+echo "Hooks enabled:"
+echo "  • PermissionRequest - macOS notification on permission request"
+echo "  • PreToolUse - Blocks rm commands (safety protection)"
+echo "  • Stop - macOS notification on task completion"
 echo ""
-cat hooks-example.json
+echo "Restart Claude Code to apply changes:"
+echo "  claude"
 echo ""
-echo "For more details, see README.md"
+echo "Test the rm blocker:"
+echo "  Ask Claude to run 'rm test.txt' - it will be blocked!"
+echo ""
+echo "For more info: https://github.com/SlowGrowth1314/CCSkills"
