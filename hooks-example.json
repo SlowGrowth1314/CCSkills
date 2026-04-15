@@ -1,0 +1,37 @@
+# Claude Code Hooks Configuration Example
+# Add these hooks to your ~/.claude/settings.json
+
+{
+  "hooks": {
+    "PermissionRequest": [
+      {
+        "hooks": [
+          {
+            "command": "osascript -e 'display notification \"Claude requests permission\" with title \"Permission Request\" sound name \"Hero\"'",
+            "type": "command"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "hooks": [
+          {
+            "command": "bash ~/.claude/hooks/block-rm.sh",
+            "type": "command"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "command": "osascript -e 'display notification \"Claude task completed\" with title \"Completed\" sound name \"Pop\"'",
+            "type": "command"
+          }
+        ]
+      }
+    ]
+  }
+}
