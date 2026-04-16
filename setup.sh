@@ -57,23 +57,25 @@ if [[ "$DRY_RUN" == "false" ]]; then
         # Merge hooks into existing settings
         echo "Merging hooks with existing settings..."
 
-        # Read existing settings
-        EXISTING=$(cat "$SETTINGS_FILE")
-
-        # Read hooks config
-        HOOKS_CONFIG=$(cat "$HOOKS_EXAMPLE")
-
-        # Merge using jq - deep merge to preserve existing settings
-        MERGED=$(echo "$EXISTING" "$HOOKS_CONFIG" | jq -s 'def deep_merge(a; b):
-            b | to_entries |
-            reduce .[] as $item (a;
-                if ($item.key | IN("hooks")) then
-                    .[$item.key] = deep_merge(.[$item.key] // {}; $item.value)
-                else
-                    .[$item.key] = $item.value
-                end
-            );
-        deep_merge(.[0]; .[1])')
+        # Merge: keep existing hooks, only add new hook types from example
+        MERGED=$(jq -s '
+            .[0] as $existing | .[1] as $example |
+            # Keep existing non-hooks fields
+            ($existing | del(.hooks)) +
+            # Merge hooks: existing takes precedence, add new types from example
+            {
+                hooks: (
+                    ($example.hooks // {}) | to_entries |
+                    reduce .[] as $item ($existing.hooks // {};
+                        if (.[$item.key] | not) then
+                            .[$item.key] = $item.value
+                        else
+                            .
+                        end
+                    )
+                )
+            }
+        ' "$SETTINGS_FILE" "$HOOKS_EXAMPLE")
 
         # Write merged settings
         echo "$MERGED" > "$SETTINGS_FILE"
