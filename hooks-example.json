@@ -1,6 +1,3 @@
-# Claude Code Hooks Configuration Example
-# Add these hooks to your ~/.claude/settings.json
-
 {
   "hooks": {
     "PermissionRequest": [
